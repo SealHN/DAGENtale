@@ -1,0 +1,60 @@
+/* 基础样式 */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    #dialog-box {
+        font-size: 14px !important;
+        height: 80px !important;
+    }
+    
+    .option {
+        font-size: 14px !important;
+        padding: 3px 6px !important;
+    }
+    
+    #enemy {
+        width: 120px !important;
+        height: 120px !important;
+    }
+    
+    .dpad-btn {
+        width: 35px !important;
+        height: 35px !important;
+    }
+    
+    .ab-btn {
+        width: 45px !important;
+        height: 45px !important;
+    }
+}
+
+/* 动画 */
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
