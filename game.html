@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DAGENtale - 战斗!</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-image: url('assets/a.png');
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+        
+        #game-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+        
+        #battle-room {
+            background-image: url('assets/e.png');
+            background-size: cover;
+            background-position: center;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #enemy {
+            position: absolute;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 150px;
+            transition: all 0.3s;
+        }
+        
+        #dialog-box {
+            position: absolute;
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 100px;
+            background-color: white;
+            border: 4px solid black;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        #hp-bar {
+            position: absolute;
+            bottom: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 20px;
+            background-color: #ddd;
+            border: 2px solid black;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        #hp-fill {
+            height: 100%;
+            width: 100%;
+            background-color: #ff5555;
+            transition: width 0.3s;
+        }
+        
+        #options {
+            position: absolute;
+            bottom: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .option {
+            background-color: white;
+            border: 2px solid black;
+            border-radius: 5px;
+            padding: 5px 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 0 5px;
+        }
+        
+        .option:hover {
+            background-color: #ffdddd;
+        }
+        
+        #heart {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: red;
+            clip-path: polygon(50% 0%, 100% 35%, 82% 100%, 18% 100%, 0% 35%);
+            transition: all 0.1s;
+            z-index: 10;
+        }
+        
+        #controls {
+            position: absolute;
+            left: 20px;
+            bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .dpad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .dpad-btn {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border: 2px solid black;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            user-select: none;
+        }
+        
+        .dpad-btn:active {
+            background-color: rgba(200, 200, 200, 0.7);
+        }
+        
+        .ab-btns {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .ab-btn {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(255, 100, 100, 0.7);
+            border: 2px solid black;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 20px;
+            user-select: none;
+        }
+        
+        .ab-btn:active {
+            background-color: rgba(200, 80, 80, 0.7);
+        }
+        
+        #damage-bar {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 50px;
+            background-color: white;
+            border: 4px solid black;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        #damage-meter {
+            height: 30px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #damage-pointer {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 2px;
+            height: 100%;
+            background-color: black;
+            z-index: 10;
+        }
+        
+        #damage-zones {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+        }
+        
+        .damage-zone {
+            height: 100%;
+        }
+        
+        #red-zone {
+            background-color: #ff0000;
+            width: 10%;
+        }
+        
+        #yellow-zone {
+            background-color: #ffff00;
+            width: 20%;
+        }
+        
+        #green-zone {
+            background-color: #00ff00;
+            width: 40%;
+        }
+        
+        #white-zone {
+            background-color: white;
+            width: 30%;
+        }
+        
+        #action-options, #mercy-options, #item-options {
+            position: absolute;
+            bottom: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            background-color: white;
+            border: 4px solid black;
+            border-radius: 10px;
+            padding: 10px;
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .sub-option {
+            padding: 5px;
+            cursor: pointer;
+        }
+        
+        .sub-option:hover {
+            background-color: #ffdddd;
+        }
+        
+        #instructions {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            background-color: white;
+            border: 4px solid black;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        #start-battle-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        
+        #end-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        #end-message {
+            font-size: 48px;
+            color: white;
+            text-shadow: 2px 2px 4px black;
+            margin-bottom: 30px;
+        }
+        
+        .end-btn {
+            padding: 15px 30px;
+            margin: 10px;
+            font-size: 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        
+        #seal {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            display: none;
+            cursor: pointer;
+            z-index: 5;
+        }
+        
+        #speech-bubble {
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: white;
+            border: 3px solid black;
+            border-radius: 10px;
+            padding: 10px;
+            max-width: 80%;
+            display: none;
+            font-size: 14px;
+        }
+        
+        #speech-bubble:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 10px solid black;
+        }
+    </style>
+</head>
+<body>
+    <div id="instructions">
+        <h2>DAGENtale 战斗说明 (｀・ω・´)</h2>
+        <p>欢迎来到大根的世界！这里有一只爱健身、打篮球的大根等着你挑战！</p>
+        <p>战斗规则：</p>
+        <ul style="text-align: left;">
+            <li>♡ 你有200点HP，大根有1000点HP (◕‿◕✿)</li>
+            <li>⚔️ 战斗选项：攻击大根，需要精准时机！</li>
+            <li>💬 行动选项：和大根互动，也许有奇效？</li>
+            <li>🍌 道具选项：使用道具扭转战局！</li>
+            <li>🕊️ 仁慈选项：饶恕或逃跑（但大根可能不领情）</li>
+        </ul>
+        <p>移动端控制：</p>
+        <p>←→↑↓ 控制红心移动，A键确认，B键取消</p>
+        <p>小心大根的攻击！他可是健身达人 (;ﾟ∇ﾟ)/</p>
+        <p>彩蛋提示：留意战斗房间上方，可能有神秘生物出没...</p>
+        <button id="start-battle-btn">开战！(ง •̀_•́)ง</button>
+    </div>
+
+    <div id="game-container">
+        <div id="battle-room">
+            <img id="enemy" src="assets/b.png" alt="大根">
+            <div id="speech-bubble"></div>
+            <div id="dialog-box"></div>
+            <div id="hp-bar">
+                <div id="hp-fill"></div>
+            </div>
+            <div id="options">
+                <div class="option" data-option="fight">战斗 ⚔️</div>
+                <div class="option" data-option="act">行动 💬</div>
+                <div class="option" data-option="item">道具 🍌</div>
+                <div class="option" data-option="mercy">仁慈 🕊️</div>
+            </div>
+            <div id="heart"></div>
+            
+            <div id="damage-bar">
+                <div id="damage-meter">
+                    <div id="damage-zones">
+                        <div id="red-zone" class="damage-zone"></div>
+                        <div id="yellow-zone" class="damage-zone"></div>
+                        <div id="green-zone" class="damage-zone"></div>
+                        <div id="white-zone" class="damage-zone"></div>
+                    </div>
+                    <div id="damage-pointer"></div>
+                </div>
+            </div>
+            
+            <div id="action-options">
+                <div class="sub-option" data-action="compliment">夸他肌肉 💪</div>
+                <div class="sub-option" data-action="banana">给他香蕉 🍌</div>
+                <div class="sub-option" data-action="basketball">聊篮球 🏀</div>
+                <div class="sub-option" data-action="flex">比肌肉 (╯°□°）╯</div>
+            </div>
+            
+            <div id="mercy-options">
+                <div class="sub-option" data-mercy="spare">饶恕 ✌️</div>
+                <div class="sub-option" data-mercy="flee">逃跑 🏃</div>
+            </div>
+            
+            <div id="item-options">
+                <div class="sub-option" data-item="monster_candy">怪物糖果 🍬</div>
+                <div class="sub-option" data-item="bandage">绷带 🩹</div>
+                <div class="sub-option" data-item="protein">蛋白粉 🥄</div>
+                <div class="sub-option" data-item="dumbell_banana" style="display:none;">哑铃香蕉 🍌🏋️</div>
+            </div>
+            
+            <div id="controls">
+                <div class="dpad">
+                    <div class="dpad-btn" style="grid-column: 2; grid-row: 1;">↑</div>
+                    <div class="dpad-btn" style="grid-column: 1; grid-row: 2;">←</div>
+                    <div class="dpad-btn" style="grid-column: 2; grid-row: 2;"></div>
+                    <div class="dpad-btn" style="grid-column: 3; grid-row: 2;">→</div>
+                    <div class="dpad-btn" style="grid-column: 2; grid-row: 3;">↓</div>
+                </div>
+                <div class="ab-btns">
+                    <div class="ab-btn" id="a-btn">A</div>
+                    <div class="ab-btn" id="b-btn">B</div>
+                </div>
+            </div>
+            
+            <img id="seal" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4AkEEjIXYQhZJgAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAABXElEQVQ4y+3UMUoDQRTG8Z8psJBUKTyAR7ATvIBgYSM2Fp7AA3gBG0ErC0sLwUJQEEFJY2FhIYgQkIR5Fm+W2Z3ZJYVfGIZ5M/v/33szO0m73W4B1sM+8IYJ8IhXfOZ5/pAkyQbwjHlM8Y5x2C/hCk+4wB5wj2Oc4QbHwB3OcY1D4BZHOMM1DoBbHOAUN9jHDfZxgjvs4Q672MMtdrGLXexgB9vYxha2sIlNbGAd61jDGlaR5/lCkiQbwDPmMcU7xmG/hCuc4wK7wR12cYwz3OAYuMM5rnEI3OIIZ7jGAXCLQ5ziBvu4wT5OsI8b7OMGu9jFLnawg21sYwtb2MQmNrCOdaxhFavI83whSZJ14AlzmOId47BfwhXOcIFd4A67OMYZbnAM3OEc1zgEbnGEM1zjALjFIU5xg33cYB8n2McN9nGDXexiFzvYwTa2sYUtbGITG1jHOtawilXkeb6QJMk68Ig5TPGOcdgv4QqnuMAucIddHOMMNzgG7nCOaxwCtzjCGa5xANziEKe4wT5usI8T7OMG+7jBLnaxi/+yD1QYVQZ7X3pJAAAAAElFTkSuQmCC" alt="海豹">
+        </div>
+        
+        <div id="end-screen">
+            <div id="end-message"></div>
+            <button class="end-btn" id="restart-btn">再战！(╯°□°）╯</button>
+            <button class="end-btn" id="return-btn">返回 ₍₍ (ง ˙ω˙)ว ⁾⁾</button>
+        </div>
+    </div>
+
+    <script src="js/game.js"></script>
+    <script>
+        document.getElementById('start-battle-btn').addEventListener('click', function() {
+            document.getElementById('instructions').style.display = 'none';
+            document.getElementById('game-container').style.display = 'block';
+            initGame();
+        });
+        
+        document.getElementById('restart-btn').addEventListener('click', function() {
+            location.reload();
+        });
+        
+        document.getElementById('return-btn').addEventListener('click', function() {
+            location.href = 'index.html';
+        });
+    </script>
+</body>
+  </html>
